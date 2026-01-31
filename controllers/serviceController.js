@@ -13,8 +13,18 @@ cloudinary.config({
 // @access  Private
 const createService = async (req, res) => {
   try {
+    console.log('req.body:', req.body);
+    console.log('req.files:', req.files);
     const { service_title, short_description, main_description, additional_description, key_points } = req.body;
-    const file = req.file;
+    let parsedKeyPoints = [];
+    if (key_points) {
+      try {
+        parsedKeyPoints = typeof key_points === 'string' ? JSON.parse(key_points) : key_points;
+      } catch (e) {
+        return res.status(400).json({ message: 'Invalid key_points format' });
+      }
+    }
+    const file = req.files.image && req.files.image[0] || req.files.file && req.files.file[0] || req.files.service_image && req.files.service_image[0];
 
     if (!file) {
       return res.status(400).json({ message: 'No image file uploaded' });
@@ -24,7 +34,7 @@ const createService = async (req, res) => {
       return res.status(400).json({ message: 'Service title, short description, and main description are required' });
     }
 
-    if (key_points && key_points.length > 6) {
+    if (parsedKeyPoints && parsedKeyPoints.length > 6) {
       return res.status(400).json({ message: 'Key points cannot exceed 6 items' });
     }
 
@@ -39,7 +49,7 @@ const createService = async (req, res) => {
       short_description,
       main_description,
       additional_description: additional_description || '',
-      key_points: key_points || [],
+      key_points: parsedKeyPoints || [],
       service_image: uploadResult.secure_url,
       public_id: uploadResult.public_id
     });
@@ -84,14 +94,22 @@ const getService = async (req, res) => {
 const updateService = async (req, res) => {
   try {
     const { service_title, short_description, main_description, additional_description, key_points } = req.body;
-    const file = req.file;
+    let parsedKeyPoints = key_points;
+    if (key_points !== undefined) {
+      try {
+        parsedKeyPoints = typeof key_points === 'string' ? JSON.parse(key_points) : key_points;
+      } catch (e) {
+        return res.status(400).json({ message: 'Invalid key_points format' });
+      }
+    }
+    const file = req.files.image && req.files.image[0] || req.files.file && req.files.file[0] || req.files.service_image && req.files.service_image[0];
 
     const service = await Service.findById(req.params.id);
     if (!service) {
       return res.status(404).json({ message: 'Service not found' });
     }
 
-    if (key_points && key_points.length > 6) {
+    if (parsedKeyPoints && parsedKeyPoints.length > 6) {
       return res.status(400).json({ message: 'Key points cannot exceed 6 items' });
     }
 
@@ -101,7 +119,7 @@ const updateService = async (req, res) => {
     if (short_description) updateData.short_description = short_description;
     if (main_description) updateData.main_description = main_description;
     if (additional_description !== undefined) updateData.additional_description = additional_description;
-    if (key_points !== undefined) updateData.key_points = key_points;
+    if (parsedKeyPoints !== undefined) updateData.key_points = parsedKeyPoints;
 
     if (file) {
       // Delete old image from Cloudinary

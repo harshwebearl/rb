@@ -30,8 +30,8 @@ const protect = (req, res, next) => {
 // Routes
 router.get('/', getServices);
 router.get('/:id', getService);
-router.post('/', protect, upload.single('service_image'), createService);
-router.put('/:id', protect, upload.single('service_image'), updateService);
+router.post('/', protect, upload.fields([{ name: 'image' }, { name: 'file' }, { name: 'service_image' }]), createService);
+router.put('/:id', protect, upload.fields([{ name: 'image' }, { name: 'file' }, { name: 'service_image' }]), updateService);
 router.delete('/:id', protect, deleteService);
 
 module.exports = router;
