@@ -22,6 +22,7 @@ const aboutSectionRoutes = require('./routes/aboutSectionRoutes');
 const heroSectionRoutes = require('./routes/heroSectionRoutes');
 const inquiryRoutes = require('./routes/inquiryRoutes');
 const statsRoutes = require('./routes/statsRoutes');
+const planRoutes = require('./routes/planRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -57,6 +58,9 @@ app.use('/api/about-sections', aboutSectionRoutes);
 app.use('/api/hero-sections', heroSectionRoutes);
 app.use('/api/inquiries', inquiryRoutes);
 app.use('/api/stats', statsRoutes);
+app.use('/api/plans', planRoutes);
+// Compatibility: also expose routes without `/api` prefix (e.g. /plans/book)
+app.use('/plans', planRoutes);
 
 // Default route
 app.get('/', (req, res) => {
