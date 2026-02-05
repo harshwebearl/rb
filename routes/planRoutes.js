@@ -8,6 +8,12 @@ router.get('/', planController.getAllPlans);
 // Book a plan
 router.post('/book', planController.bookPlan);
 
+// Bookings CRUD
+router.get('/bookings', planController.getAllBookings);
+router.get('/bookings/:id', planController.getBookingById);
+router.put('/bookings/:id', planController.updateBooking);
+router.delete('/bookings/:id', planController.deleteBooking);
+
 // Get single plan
 router.get('/:id', planController.getPlanById);
 

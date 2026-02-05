@@ -168,3 +168,66 @@ exports.bookPlan = async (req, res) => {
     });
   }
 };
+
+// Get all bookings
+exports.getAllBookings = async (req, res) => {
+  try {
+    const bookings = await Booking.find().sort({ createdAt: -1 });
+    res.status(200).json({
+      success: true,
+      message: 'Bookings fetched successfully',
+      data: bookings,
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// Get single booking by ID
+exports.getBookingById = async (req, res) => {
+  try {
+    const booking = await Booking.findById(req.params.id);
+    if (!booking) {
+      return res.status(404).json({ success: false, message: 'Booking not found' });
+    }
+    res.status(200).json({ success: true, message: 'Booking fetched successfully', data: booking });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// Update booking
+exports.updateBooking = async (req, res) => {
+  try {
+    const { name, email, phone, message, planName } = req.body;
+    const booking = await Booking.findById(req.params.id);
+    if (!booking) {
+      return res.status(404).json({ success: false, message: 'Booking not found' });
+    }
+
+    if (name) booking.name = name;
+    if (email) booking.email = email;
+    if (phone) booking.phone = phone;
+    if (message !== undefined) booking.message = message;
+    if (planName) booking.planName = planName;
+
+    await booking.save();
+
+    res.status(200).json({ success: true, message: 'Booking updated successfully', data: booking });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// Delete booking
+exports.deleteBooking = async (req, res) => {
+  try {
+    const booking = await Booking.findByIdAndDelete(req.params.id);
+    if (!booking) {
+      return res.status(404).json({ success: false, message: 'Booking not found' });
+    }
+    res.status(200).json({ success: true, message: 'Booking deleted successfully', data: booking });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
